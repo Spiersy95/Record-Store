@@ -1,4 +1,4 @@
-package com.northcoders.RecordStore.Health;
+package com.northcoders.RecordStore.Controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
