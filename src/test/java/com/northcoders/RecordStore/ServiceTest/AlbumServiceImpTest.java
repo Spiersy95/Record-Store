@@ -1,6 +1,6 @@
 package com.northcoders.RecordStore.ServiceTest;
 
-import com.northcoders.RecordStore.Exceptions.InvalidIdException;
+import com.northcoders.RecordStore.Exceptions.*;
 import com.northcoders.RecordStore.Repository.AlbumRepository;
 import com.northcoders.RecordStore.Service.AlbumServiceImp;
 import com.northcoders.RecordStore.models.Album;
@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class AlbumServiceImpTest {
@@ -31,15 +31,15 @@ public class AlbumServiceImpTest {
     public void getAlbumsById() throws InvalidIdException {
         List<Album> albums = new ArrayList<>();
         albums.add(new Album(2L,
-                "Enter the 36 chambers",
+                "36 chambers",
                 "Wu-Tang-Clan",
-                Genre.HIP_HOP,
-                200));
+                1993,
+                Genre.HIP_HOP));
         albums.add(new Album(500L,
                 "Dark side of the moon",
                 "Pink Floyd",
-                Genre.ROCK,
-                2));
+                1973,
+                Genre.ROCK));
 
         when(albumRepository.findById(2L)).thenReturn(Optional.ofNullable(albums.getFirst()));
         when(albumRepository.findById(500L)).thenReturn(Optional.ofNullable(albums.getLast()));
@@ -53,6 +53,157 @@ public class AlbumServiceImpTest {
         assertThrows(InvalidIdException.class, () -> albumServiceimp.getAlbumById(3L));
     }
 
+    @Test
+    public void getAllAlbums() throws EmptyDatabaseException {
+        List<Album> albums = new ArrayList<>();
+        List<Album> emptyAlbums = new ArrayList<>();
+        albums.add(new Album(2L,
+                "36 chambers",
+                "Wu-Tang-Clan",
+                1993,
+                Genre.HIP_HOP));
+        albums.add(new Album(500L,
+                "Dark side of the moon",
+                "Pink Floyd",
+                1973,
+                Genre.ROCK));
+
+        when(albumRepository.findAll()).thenReturn(emptyAlbums);
+        assertThrows(EmptyDatabaseException.class, () -> albumServiceimp.getAllAlbums());
+
+        when(albumRepository.findAll()).thenReturn(albums);
 
 
+        assertEquals(albums, albumServiceimp.getAllAlbums());
+
+    }
+
+    @Test
+    void addAlbumTest(){
+        Album album = new Album(2L,
+                "36 Chambers",
+                "Wu-Tang-Clan",
+                1993,
+                Genre.HIP_HOP);
+
+        when(albumRepository.save(album)).thenReturn(album);
+
+        albumServiceimp.addAlbum(album);
+
+        verify(albumRepository, times(1)).save(album);
+    }
+
+    @Test
+    void removeAlbumTest(){
+        Album album = new Album(2L,
+                "36 Chambers",
+                "Wu-Tang-Clan",
+                1993,
+                Genre.HIP_HOP);
+
+        albumServiceimp.removeAlbum(album);
+
+        verify(albumRepository, times(1)).delete(album);
+    }
+
+    @Test
+    void findAlbumsByArtistNameTest() throws MissingArtistException {
+        List<Album> emptyList = new ArrayList<>();
+        List<Album> firstList = new ArrayList<>();
+        firstList.add(new Album(2L,
+                "Wu-Tang Forever",
+                "Wu-Tang-Clan",
+                1997,
+                Genre.HIP_HOP));
+        new Album(1L,
+                "36 Chambers",
+                "Wu-Tang-Clan",
+                1993,
+                Genre.HIP_HOP);
+
+        List<Album> secondList = new ArrayList<>();
+
+        secondList.add(new Album(500L,
+                "Dark side of the moon",
+                "Pink Floyd",
+                1973,
+                Genre.ROCK));
+
+        when(albumRepository.findAllByArtistName("Wu-Tang-Clan")).thenReturn(firstList);
+        when(albumRepository.findAllByArtistName("Pink Floyd")).thenReturn(secondList);
+        when(albumRepository.findAllByArtistName("")).thenReturn(emptyList);
+
+        assertEquals(firstList, albumServiceimp.findAllByArtistName("Wu-Tang-Clan"));
+        assertEquals(secondList, albumServiceimp.findAllByArtistName("Pink Floyd"));
+        assertThrows(MissingArtistException.class,() -> albumServiceimp.findAllByArtistName(""));
+
+    }
+
+    @Test
+    void findAllAlbumsReleaseYearTest() throws UnavailableYearException {
+        List<Album> emptyList = new ArrayList<>();
+        List<Album> firstList = new ArrayList<>(List.of(
+                new Album(1L,
+                        "Raising Hell",
+                        "Run-D.M.C.",
+                        1986,
+                        Genre.HIP_HOP),
+                new Album(200L,
+                        "Licensed to Ill",
+                        "Beastie Boys",
+                        1986,
+                        Genre.HIP_HOP)
+        ));
+
+        List<Album> secondList = new ArrayList<>(List.of(
+                new Album(4L,
+                        "Kind of blue",
+                        "Miles Davis",
+                        1959,
+                        Genre.JAZZ)
+        ));
+
+        when(albumRepository.findAllByReleaseYear(1986)).thenReturn(firstList);
+        when(albumRepository.findAllByReleaseYear(1959)).thenReturn(secondList);
+        when(albumRepository.findAllByReleaseYear(2)).thenReturn(emptyList);
+
+        assertEquals(firstList, albumServiceimp.findAllByReleaseYear(1986));
+        assertEquals(firstList, albumServiceimp.findAllByReleaseYear(1986));
+        assertThrows(UnavailableYearException.class,() -> albumServiceimp.findAllByReleaseYear(2));
+
+    }
+
+    @Test
+    void getAlbumsByGenreTest(){}
+    void findAllAlbumsGenreTest() throws InvalidGenreException {
+        List<Album> emptyList = new ArrayList<>();
+        List<Album> firstList = new ArrayList<>(List.of(
+                new Album(1L,
+                        "Raising Hell",
+                        "Run-D.M.C.",
+                        1986,
+                        Genre.HIP_HOP),
+                new Album(200L,
+                        "Licensed to Ill",
+                        "Beastie Boys",
+                        1986,
+                        Genre.HIP_HOP)
+        ));
+
+        List<Album> secondList = new ArrayList<>(List.of(
+                new Album(4L,
+                        "Kind of blue",
+                        "Miles Davis",
+                        1959,
+                        Genre.JAZZ)
+        ));
+
+        when(albumRepository.findAllByGenre(Genre.HIP_HOP)).thenReturn(firstList);
+        when(albumRepository.findAllByGenre(Genre.JAZZ)).thenReturn(secondList);
+        when(albumRepository.findAllByGenre(Genre.ROCK)).thenReturn(emptyList);
+
+        assertEquals(firstList, albumServiceimp.findAllByGenre(Genre.HIP_HOP));
+        assertEquals(firstList, albumServiceimp.findAllByGenre(Genre.JAZZ));
+        assertThrows(UnavailableYearException.class, () -> albumServiceimp.findAllByGenre(Genre.ROCK));
+    }
 }

@@ -15,14 +15,17 @@ import lombok.NoArgsConstructor;
 public class Album {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name="album_name", nullable = true)
+    @Column(name="album_name")
     private String albumName;
 
     @Column(name="artist_name", nullable = false)
     private String artistName;
+
+    @Column(name = "release_year", nullable = false)
+    private int releaseYear;
 
     @Column (name= "genre")
     private Genre genre;
