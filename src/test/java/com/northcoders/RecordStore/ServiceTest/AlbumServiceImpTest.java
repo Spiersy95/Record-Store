@@ -203,7 +203,40 @@ public class AlbumServiceImpTest {
         when(albumRepository.findAllByGenre(Genre.ROCK)).thenReturn(emptyList);
 
         assertEquals(firstList, albumServiceimp.findAllByGenre(Genre.HIP_HOP));
-        assertEquals(firstList, albumServiceimp.findAllByGenre(Genre.JAZZ));
+        assertEquals(secondList, albumServiceimp.findAllByGenre(Genre.JAZZ));
         assertThrows(UnavailableYearException.class, () -> albumServiceimp.findAllByGenre(Genre.ROCK));
+    }
+
+    @Test
+    void findAllAlbumsByAlbumName() throws MissingAlbumException {
+        List<Album> emptyList = new ArrayList<>();
+        List<Album> firstList = new ArrayList<>(List.of(
+                new Album(1L,
+                        "Up",
+                        "R.E.M.",
+                        1998,
+                        Genre.ROCK),
+                new Album(200L,
+                        "Up",
+                        "Peter-Gabriel",
+                        2002,
+                        Genre.ROCK)
+        ));
+
+        List<Album> secondList = new ArrayList<>(List.of(
+                new Album(4L,
+                        "Kind-of-blue",
+                        "Miles-Davis",
+                        1959,
+                        Genre.JAZZ)
+        ));
+
+        when(albumRepository.findAllByAlbumName("Up")).thenReturn(firstList);
+        when(albumRepository.findAllByAlbumName("Kind-of-blue")).thenReturn(secondList);
+        when(albumRepository.findAllByAlbumName(" ")).thenReturn(emptyList);
+
+        assertEquals(firstList, albumServiceimp.findAllByAlbumName("Up"));
+        assertEquals(secondList, albumServiceimp.findAllByAlbumName("Kind-of-blue"));
+        assertThrows(MissingAlbumException.class, () -> albumServiceimp.findAllByAlbumName(" "));
     }
 }

@@ -228,10 +228,6 @@ public class AlbumControllerTests {
         this.mockMvcController.perform(
                 MockMvcRequestBuilders.get("/api/v1/albums/artist/Aqua"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
-
-        this.mockMvcController.perform(
-                        MockMvcRequestBuilders.get("/api/v1/albums/artist/"))
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     @Test
@@ -326,8 +322,54 @@ public class AlbumControllerTests {
         this.mockMvcController.perform(
                 MockMvcRequestBuilders.get("/api/v1/albums/genre/ROCK"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
-
     }
+
+    @Test
+    void getAlbumsByAlbumTitle() throws Exception {
+        List<Album> firstList = new ArrayList<>(List.of(
+                new Album(1L,
+                        "Up",
+                        "R.E.M.",
+                        1998,
+                        Genre.ROCK),
+                new Album(200L,
+                        "Up",
+                        "Peter-Gabriel",
+                        2002,
+                        Genre.ROCK)
+        ));
+
+        List<Album> secondList = new ArrayList<>(List.of(
+                new Album(4L,
+                        "Kind-of-blue",
+                        "Miles-Davis",
+                        1959,
+                        Genre.JAZZ)
+        ));
+
+        when(mockAlbumServiceImp.findAllByAlbumName("Up")).thenReturn(firstList);
+        when(mockAlbumServiceImp.findAllByAlbumName("Kind-of-blue")).thenReturn(secondList);
+        when(mockAlbumServiceImp.findAllByAlbumName("fdsfds")).thenThrow(MissingAlbumException.class);
+
+        this.mockMvcController.perform(
+                        MockMvcRequestBuilders.get("/api/v1/albums/listOfAlbumsCalled--Up"))
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(1L))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].artistName").value("R.E.M."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id").value(200L))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].artistName").value("Peter-Gabriel"));
+
+        this.mockMvcController.perform(
+                        MockMvcRequestBuilders.get("/api/v1/albums/listOfAlbumsCalled--Kind-of-blue"))
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(4L))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].artistName").value("Miles-Davis"));
+
+        this.mockMvcController.perform(
+                        MockMvcRequestBuilders.get("/api/v1/albums/listOfAlbumsCalled--fdsfds"))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
 
 
 

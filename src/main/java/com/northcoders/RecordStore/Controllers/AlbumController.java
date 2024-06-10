@@ -8,9 +8,6 @@ import com.northcoders.RecordStore.models.Album;
 import com.northcoders.RecordStore.models.Genre;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.core.convert.ConversionFailedException;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.NonTransientDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -100,7 +97,7 @@ public class AlbumController {
         }
     }
 
-    @GetMapping("/albums/listOfAlbumsCalled{albumName}")
+    @GetMapping("/albums/listOfAlbumsCalled--{albumName}")
     public ResponseEntity<List<Album>> getAlbumsByArtistName(@PathVariable(name= "albumName") String albumName){
         try{
             List<Album> albums = albumService.findAllByAlbumName(albumName);

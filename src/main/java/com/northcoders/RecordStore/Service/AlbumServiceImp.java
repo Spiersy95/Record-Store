@@ -88,11 +88,12 @@ public class AlbumServiceImp implements AlbumService {
     }
 
     @Override
-    public List<Album> findAllByAlbumName(String albumName) {
+    public List<Album> findAllByAlbumName(String albumName) throws MissingAlbumException {
         List<Album> albums = albumRepository.findAllByAlbumName(albumName);
         if (albums.isEmpty()){
-
+            throw new MissingAlbumException();
         }
+        return albums;
     }
 
 

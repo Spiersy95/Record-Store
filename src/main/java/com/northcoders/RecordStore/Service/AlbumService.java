@@ -17,5 +17,5 @@ public interface AlbumService {
     public List<Album> findAllByArtistName(String artistName) throws MissingArtistException;
     public List<Album> findAllByReleaseYear(int releaseYear) throws UnavailableYearException;
     public List<Album> findAllByGenre(Genre genre) throws InvalidGenreException;
-    public List<Album> findAllByAlbumName(String AlbumName);
+    public List<Album> findAllByAlbumName(String AlbumName) throws MissingAlbumException;
 }
