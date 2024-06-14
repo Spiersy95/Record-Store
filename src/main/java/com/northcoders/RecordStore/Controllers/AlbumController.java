@@ -31,7 +31,7 @@ public class AlbumController {
     }
 
     @Operation(summary = "Get a record by id", description = "Returns a record as per the id")
-    @GetMapping("/album/{id}")
+    @GetMapping("/album/id/{id}")
     public ResponseEntity<Album> getAlbumById(@PathVariable Long id){
         Album album = albumService.getAlbumById(id);
         return new ResponseEntity<>(album, HttpStatus.OK);
@@ -72,7 +72,7 @@ public class AlbumController {
     }
 
     @Operation(summary = "Get all records sold in store from a given year", description = "Returns all records from a given year")
-    @GetMapping("/albums/{releaseYear}")
+    @GetMapping("/albums/year/{releaseYear}")
     public ResponseEntity<List<Album>> getAlbumsByReleaseYear(@PathVariable(name = "releaseYear") int releaseYear){
         List<Album> albums = albumService.findAllByReleaseYear(releaseYear);
         return new ResponseEntity<>(albums, HttpStatus.FOUND);
@@ -87,7 +87,7 @@ public class AlbumController {
 
     @Operation(summary = "Get all the records in store by a given artist", description = "Returns all records by an artist " +
             "we have in stock")
-    @GetMapping("/albums/listOfAlbumsCalled--{albumName}")
+    @GetMapping("/albums/albumName/{albumName}")
     public ResponseEntity<List<Album>> getAlbumsByArtistName(@PathVariable(name= "albumName") String albumName){
         List<Album> albums = albumService.findAllByAlbumName(albumName);
         return new ResponseEntity<>(albums, HttpStatus.FOUND);

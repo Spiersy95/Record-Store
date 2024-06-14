@@ -1,6 +1,7 @@
 package com.northcoders.RecordStore.ServiceTest;
 
 import com.northcoders.RecordStore.Exceptions.*;
+import com.northcoders.RecordStore.Formatters.NameFormatter;
 import com.northcoders.RecordStore.Repository.AlbumRepository;
 import com.northcoders.RecordStore.Service.AlbumServiceImp;
 import com.northcoders.RecordStore.models.Album;
@@ -36,11 +37,18 @@ public class AlbumServiceImpTest {
     @Mock
     AlbumRepository albumRepository;
 
+    @Mock
+    NameFormatter nameFormatter;
+
+    @Mock
+
+
     @InjectMocks
     AlbumServiceImp albumServiceimp;
 
     @Autowired
     CacheManager cacheManager;
+
 
     private Optional<Album> getCachedAlbum(String albumName){
         return ofNullable(cacheManager.getCache("album")).map(c -> c.get(albumName, Album.class));
@@ -109,8 +117,16 @@ public class AlbumServiceImpTest {
                 1993,
                 Genre.HIP_HOP);
 
+        Album expected = new Album(1L,
+                "36_Chambers",
+                "Wu-Tang-Clan",
+                1993,
+                Genre.HIP_HOP);
 
-        assertEquals(album, albumServiceimp.addAlbum(album));
+
+
+
+        assertEquals(expected, albumServiceimp.addAlbum(album));
 
     }
 
@@ -281,7 +297,7 @@ public class AlbumServiceImpTest {
         when(albumRepository.findById(1L)).thenReturn(oldAlbum);
 
         Album expected = new Album(1L,
-                "36 Chambers",
+                "36_Chambers",
                 "Wu-Tang-Clan",
                 1993,
                 Genre.HIP_HOP);

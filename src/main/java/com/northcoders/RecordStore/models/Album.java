@@ -21,7 +21,7 @@ public class Album {
     @Column(name="album_name")
     private String albumName;
 
-    @Column(name="artist_name")
+    @Column(name="artist_name", nullable = false)
     private String artistName;
 
     @Column(name = "release_year")

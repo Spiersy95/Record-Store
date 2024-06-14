@@ -2,13 +2,17 @@ package com.northcoders.RecordStore.Service;
 
 import com.northcoders.RecordStore.Exceptions.*;
 
+import com.northcoders.RecordStore.Formatters.NameFormatter;
 import com.northcoders.RecordStore.Repository.AlbumRepository;
+import com.northcoders.RecordStore.Validation.StringValidator;
+import com.northcoders.RecordStore.Validation.ReleaseYearValidator;
 import com.northcoders.RecordStore.models.Album;
 import com.northcoders.RecordStore.models.Genre;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 
+import javax.naming.InvalidNameException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +22,15 @@ public class AlbumServiceImp implements AlbumService {
 
     @Autowired
     AlbumRepository albumRepository;
+
+    @Autowired
+    StringValidator stringValidator;
+
+    @Autowired
+    ReleaseYearValidator releaseYearValidator;
+
+    @Autowired
+    NameFormatter nameFormatter;
 
     @Override
     public Album getAlbumById(Long id) throws InvalidIdException {
@@ -40,6 +53,22 @@ public class AlbumServiceImp implements AlbumService {
 
     @Override
     public Album addAlbum(Album album){
+        if(!stringValidator.validate(album.getArtistName())){
+            throw new MissingArtistException("Sorry we must have a non-empty artist name");
+        }
+
+        album.setArtistName(nameFormatter.format(album.getArtistName()));
+
+        if(!releaseYearValidator.validate(album.getReleaseYear())){
+            throw new UnavailableYearException("Sorry this is an invalid year");
+        }
+
+        if(!stringValidator.validate(album.getAlbumName())){
+            album.setAlbumName("Untitled");
+        } else {
+            album.setAlbumName(nameFormatter.format(album.getAlbumName()));
+        }
+
         albumRepository.save(album);
         return album;
     }
@@ -58,14 +87,30 @@ public class AlbumServiceImp implements AlbumService {
     @Override
     public Album updateAlbum(Album album, Long id){
         Optional<Album> oldOptionalAlbum = albumRepository.findById(id);
+
         if (oldOptionalAlbum.isEmpty()){
             throw new InvalidIdException("Sorry there that id does not correspond to anything we have in store");
         }
+
         Album oldAlbum = oldOptionalAlbum.get();
-        oldAlbum.setAlbumName(album.getAlbumName());
-        oldAlbum.setArtistName(album.getArtistName());
-        oldAlbum.setGenre(album.getGenre());
+        if (!stringValidator.validate(album.getArtistName())) {
+            throw new InvalidArtistNameException("Sorry the artist name you supplied is invalid");
+        }
+
+        oldAlbum.setArtistName(nameFormatter.format(album.getAlbumName()));
+
+
+        if (stringValidator.validate(album.getAlbumName())){
+            oldAlbum.setAlbumName(nameFormatter.format(album.getAlbumName()));
+        } else {
+            oldAlbum.setAlbumName("Untitled");
+        }
+
+        if (!releaseYearValidator.validate(album.getReleaseYear())){
+            throw new UnavailableYearException("Sorry no album was released the time you think this was");
+        }
         oldAlbum.setReleaseYear(album.getReleaseYear());
+
         return albumRepository.save(oldAlbum);
     }
 
