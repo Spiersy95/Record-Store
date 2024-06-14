@@ -17,11 +17,11 @@ public class Album {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
+    
     @Column(name="album_name")
     private String albumName;
 
-    @Column(name="artist_name", nullable = false)
+    @Column(name="artist_name")
     private String artistName;
 
     @Column(name = "release_year")

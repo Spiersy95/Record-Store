@@ -23,35 +23,43 @@ public class AlbumServiceImp implements AlbumService {
     public Album getAlbumById(Long id) throws InvalidIdException {
         Optional<Album> possibleAlbum = albumRepository.findById(id);
         if (possibleAlbum.isEmpty()){
-            throw new InvalidIdException();
+            throw new InvalidIdException("Sorry there is no album by this id");
         }
         return possibleAlbum.get();
     }
 
     @Override
-    public List<Album> getAllAlbums() throws EmptyDatabaseException {
+    public List<Album> getAllAlbums(){
         List<Album> albums = new ArrayList<>();
         albumRepository.findAll().forEach(albums::add);
         if(albums.isEmpty()){
-            throw new EmptyDatabaseException();
+            throw new EmptyDatabaseException("Sorry the store has nothing in stock at the moment come by later");
         }
         return albums;
     }
 
     @Override
-    public void addAlbum(Album album) {
+    public Album addAlbum(Album album){
         albumRepository.save(album);
+        return album;
     }
 
     @Override
-    public void removeAlbum(Album album){
-        albumRepository.delete(album);
+    public void removeAlbum(Long id){
+        Optional<Album> albumToBeDeleted = albumRepository.findById(id);
+        if (albumToBeDeleted.isEmpty()){
+            throw new InvalidIdException("sorry there is no album with this id");
+        } else {
+            albumRepository.delete(albumToBeDeleted.get());
+        }
+
     }
 
-    public Album updateAlbum(Album album) throws InvalidIdException {
-        Optional<Album> oldOptionalAlbum = albumRepository.findById(album.getId());
+    @Override
+    public Album updateAlbum(Album album, Long id){
+        Optional<Album> oldOptionalAlbum = albumRepository.findById(id);
         if (oldOptionalAlbum.isEmpty()){
-            throw new InvalidIdException();
+            throw new InvalidIdException("Sorry there that id does not correspond to anything we have in store");
         }
         Album oldAlbum = oldOptionalAlbum.get();
         oldAlbum.setAlbumName(album.getAlbumName());
@@ -61,7 +69,7 @@ public class AlbumServiceImp implements AlbumService {
         return albumRepository.save(oldAlbum);
     }
 
-    public List<Album> findAllByArtistName(String artistName) throws MissingArtistException {
+    public List<Album> findAllByArtistName(String artistName){
         List<Album> albumsByArtist = albumRepository.findAllByArtistName(artistName);
         if (albumsByArtist.isEmpty()){
             throw new MissingArtistException("Sorry the artist does not have any albums in store");
@@ -70,7 +78,7 @@ public class AlbumServiceImp implements AlbumService {
     }
 
     @Override
-    public List<Album> findAllByReleaseYear(int releaseYear) throws UnavailableYearException {
+    public List<Album> findAllByReleaseYear(int releaseYear){
         List<Album> releaseYearAlbums = albumRepository.findAllByReleaseYear(releaseYear);
         if (releaseYearAlbums.isEmpty()){
             throw new UnavailableYearException("Sorry we have no albums from this year in stock");
@@ -79,7 +87,7 @@ public class AlbumServiceImp implements AlbumService {
     }
 
     @Override
-    public List<Album> findAllByGenre(Genre genre) throws InvalidGenreException {
+    public List<Album> findAllByGenre(Genre genre){
         List<Album> genreAlbums = albumRepository.findAllByGenre(genre);
         if (genreAlbums.isEmpty()){
             throw new InvalidGenreException("Not sure where this exception comes from");
@@ -88,10 +96,10 @@ public class AlbumServiceImp implements AlbumService {
     }
 
     @Override
-    public List<Album> findAllByAlbumName(String albumName) throws MissingAlbumException {
+    public List<Album> findAllByAlbumName(String albumName){
         List<Album> albums = albumRepository.findAllByAlbumName(albumName);
         if (albums.isEmpty()){
-            throw new MissingAlbumException();
+            throw new MissingAlbumException("Sorry we have no albums by that name in store");
         }
         return albums;
     }

@@ -71,23 +71,23 @@ public class AlbumControllerTests {
         when(mockAlbumServiceImp.getAlbumById(3L)).thenThrow(InvalidIdException.class);
 
         this.mockMvcController.perform(
-                MockMvcRequestBuilders.get("/api/v1/album?id=2"))
+                MockMvcRequestBuilders.get("/api/v1/album/2"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.albumName").value("36 chambers"));
 
         this.mockMvcController.perform(
-                        MockMvcRequestBuilders.get("/api/v1/album?id=500"))
+                        MockMvcRequestBuilders.get("/api/v1/album/500"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(500))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.albumName").value("Dark side of the moon"));
 
         this.mockMvcController.perform(
-                        MockMvcRequestBuilders.get("/api/v1/album?id=1"))
+                        MockMvcRequestBuilders.get("/api/v1/album/1"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
         this.mockMvcController.perform(
-                        MockMvcRequestBuilders.get("/api/v1/album?id=3"))
+                        MockMvcRequestBuilders.get("/api/v1/album/3"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
@@ -140,11 +140,15 @@ public class AlbumControllerTests {
     @DisplayName("post/ album")
     void postAlbumTest() throws Exception {
 
+
        Album album = new Album(2L,
-                "36 chambers",
-                "Wu-Tang-Clan",
-                1993,
-                Genre.HIP_HOP);
+               "36 chambers",
+               "Wu-Tang-Clan",
+               1993,
+               Genre.HIP_HOP);
+
+
+        when(mockAlbumServiceImp.addAlbum(album)).thenReturn(album);
 
 
 
@@ -153,7 +157,7 @@ public class AlbumControllerTests {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(album)))
                 .andExpect(MockMvcResultMatchers.status().isAccepted())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(2L))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.albumName").value("36 chambers"));
 
         verify(mockAlbumServiceImp, times(1)).addAlbum(album);
@@ -168,19 +172,19 @@ public class AlbumControllerTests {
                 1993,
                 Genre.HIP_HOP);
 
-        String expectedString = "Deleted Album: 36 chambers by artist: Wu-Tang-Clan";
+        String expectedString = "Deleted Album with ID: 2";
+
+
 
         MvcResult result = this.mockMvcController.perform(
-                MockMvcRequestBuilders.delete("/api/v1/album")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(album)))
+                MockMvcRequestBuilders.delete("/api/v1/album/2"))
                 .andExpect(MockMvcResultMatchers.status().isAccepted()).andReturn();
 
         System.out.println(result.getResponse().getContentAsString());
 
         assertEquals(expectedString, result.getResponse().getContentAsString());
 
-        verify(mockAlbumServiceImp, times(1)).removeAlbum(album);
+        verify(mockAlbumServiceImp, times(1)).removeAlbum(2L);
     }
 
     @Test
@@ -370,6 +374,10 @@ public class AlbumControllerTests {
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
+    @Test
+    void putAlbumTest(){
+
+    }
 
 
 

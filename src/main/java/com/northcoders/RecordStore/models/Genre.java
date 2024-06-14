@@ -1,5 +1,8 @@
 package com.northcoders.RecordStore.models;
 
+import java.util.Arrays;
+import java.util.function.Predicate;
+
 public enum Genre {
     POP,
     ROCK,
@@ -8,3 +11,5 @@ public enum Genre {
     JAZZ,
     CLASSICAL,
 }
+
+

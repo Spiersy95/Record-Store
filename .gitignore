@@ -18,7 +18,8 @@ target/
 *.iws
 *.iml
 *.ipr
-application-prod.properties
+src/main/resources/application-prod.properties
+src/main/resources/application-rds.properties
 
 ### NetBeans ###
 /nbproject/private/
